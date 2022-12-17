@@ -1,0 +1,123 @@
+---
+title: "PROJET V1"
+author: "William Legendre"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  html_document: 
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: no
+    code_folding: hide
+    fig_caption: yes
+    number_sections: yes
+    highlight: zenburn
+    theme: readable
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center')
+```
+
+__Package:__
+
+```{r package, message = FALSE}
+pacman::p_load(readxl, tidyverse, limma, FactoMineR, FactoInvestigate)
+```
+
+__Gestion de la base de donnée__
+
+```{r db gestion}
+db <- read_excel("C:/Users/33763/OneDrive/Bureau/Git/GrandDim/GSE124548_AllData_170308_RNAseq_Kopp_Results.xlsx", sheet = "AllData", col_names = TRUE)
+
+# Selection des colonnes d'intérêt possible
+db <- db[grepl("Norm_", colnames(db)) | grepl("ID", colnames(db)) |  grepl("Description", colnames(db)) | grepl("Class", colnames(db))]
+
+# Retirer le Norm_ suivi d'un nombre
+colnames(db) <- gsub("Norm_[0-9]+_", "", colnames(db))
+# Retire le Norm_ tout court
+colnames(db) <- gsub("Norm_", "", colnames(db))
+
+# Renommer les HC en 1 seule categorie
+colnames(db) <- gsub("HC_Auto", "HC", colnames(db))
+colnames(db) <- gsub("HC_Immune", "HC", colnames(db))
+
+```
+
+```{r which CF is missing, message = FALSE}
+# Afficher en fonction des bases et V2
+names(db)[grepl("Orkambi", colnames(db))][order
+(gsub("Orkambi_[0-9]+_Base", "",colnames(db)[grepl("Orkambi", colnames(db))]))]
+```
+  - __Orkambi_002__ : PAS DE V2   -> A supprimer comme recommandé.
+  - __Orkambi_019__ : PAS DE BASE -> A supprimer comme recommandé.
+
+
+```{r delete patients}
+# Retirer les patients manquants
+db$Orkambi_002_Base <- NULL
+db$Orkambi_019_V2 <- NULL
+```
+
+```{r}
+# db <- t(db)
+```
+
+
+```{r count HC_type and Orkambi}
+# Compter nombre d'HC_ et Orkambi
+# sum(grepl("HC_", colnames(db)))
+# sum(grepl("Base", colnames(db)))
+# sum(grepl("V2", colnames(db)))
+
+```
+```{r Type}
+# db$Type <- NA
+# db$Type[grepl("Base", colnames(db))] <- "Base"
+# db$Type[grepl("V2", colnames(db))] <- "V2"
+# db$Type[grepl("HC", colnames(db))] <- "HC"
+```
+
+```{r}
+summary(db)
+```
+
+# Plan 
+
+(https://www.cysticfibrosisjournal.com/article/S1569-1993(19)30868-9/fulltext)
+
+Normalized read counts for each sample.
+
+Correlation of gene expression with clinical variables was performed by stratification via clinical responses.
+
+Differences in mRNA expression between pre- and post-drug CF groups and compared to controls were analyzed by pair-wise fixed reallocation randomization tests with REST 2009 software.
+
+Clinical data was reported as means ± the standard deviation.
+Changes in pre/post drug initiation parameters were analyzed using paired t-test.
+
+For transcriptomic data, a list of significant differentially expressed features between the two groups was generated using an absolute value of log2 fold change ≥1.5 and an adjusted p-value of ≤0.05 [5% false discovery rate (FDR)].
+
+For pathway analysis, a 10% FDR was used for the pre/post drug comparison and are included in the deposited GEO data.
+
+For qRT-PCR analysis, statistical significance was determined using the integrated randomization and bootstrapping methods in the REST 2009 software package. Data analysis was performed in Stata/MP 13.1, R software, and GraphPad Prism 7.0, with a two-tail p<.05 considered statistically significant.
+
+# . Question
+
+Réaliser une étude de taille empirique du test et de puissance par simulation.
+
+A partir des données, obtenir un échantillon de valeurs typiques « sous H0 », puis des échantillons « sous H1 ».
+
+Déterminer la différence de puissance pour une approche controlant le FWER et une approche controlant le FDR.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
